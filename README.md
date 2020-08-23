@@ -10,6 +10,6 @@ mvn spring-boot:run
 
 ![Picture](https://github.com/volkov7/Spring-HelloWorld/blob/master/imgs/SpringGetStart.png)
 
-# Overwiev
+# Overview
 
 ![Picture](https://github.com/volkov7/Spring-HelloWorld/blob/master/imgs/localhost.png)
