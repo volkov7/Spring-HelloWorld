@@ -440,6 +440,209 @@ files:
         }
     }
   learner_created: false
+- name: src/engine/QuizNotFoundException.java
+  visible: true
+  text: |
+    package engine;
+
+    import org.springframework.http.HttpStatus;
+    import org.springframework.web.bind.annotation.ResponseStatus;
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public class QuizNotFoundException extends RuntimeException{
+        public QuizNotFoundException(String msg) {
+            super(msg);
+        }
+    }
+  learner_created: true
+- name: src/engine/Answer.java
+  visible: true
+  text: |
+    package engine;
+
+    public class Answer {
+        private boolean success;
+        private String feedback;
+
+        public Answer() {}
+
+        public Answer(String feedback, boolean success) {
+            this.success = success;
+            this.feedback = feedback;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public void setSuccess(boolean success) {
+            this.success = success;
+        }
+
+        public String getFeedback() {
+            return feedback;
+        }
+
+        public void setFeedback(String feedback) {
+            this.feedback = feedback;
+        }
+    }
+  learner_created: true
+- name: src/engine/Quiz.java
+  visible: true
+  text: |
+    package engine;
+
+    public class Quiz extends StructureOfQuiz{
+        protected int answer;
+
+        public Quiz(String title, String text, String[] options, int answer) {
+            super(title, text, options);
+            this.answer = answer;
+        }
+
+        public void setAnswer(int answer) {
+            this.answer = answer;
+        }
+
+        public int getAnswer() {
+            return answer;
+        }
+    }
+  learner_created: true
+- name: src/engine/StructureOfQuiz.java
+  visible: true
+  text: |
+    package engine;
+
+    public class StructureOfQuiz {
+        protected String title;
+        protected String text;
+        protected String[] options;
+
+        public StructureOfQuiz(String title, String text, String[] options) {
+            this.title = title;
+            this.text = text;
+            this.options = options;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public void setOptions(String[] options) {
+            this.options = options;
+        }
+
+        public String[] getOptions() {
+            return options;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String getText() {
+            return text;
+        }
+    }
+  learner_created: true
+- name: src/engine/ClientQuiz.java
+  visible: true
+  text: |
+    package engine;
+
+    public class ClientQuiz extends StructureOfQuiz{
+
+        protected int id;
+
+        public ClientQuiz(String title, String text, String[] options, int id) {
+            super(title, text, options);
+            this.id = id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+  learner_created: true
+- name: src/engine/QuizController.java
+  visible: true
+  text: |
+    package engine;
+
+    import org.springframework.web.bind.annotation.*;
+
+    import java.util.ArrayList;
+
+    @RestController
+    public class QuizController {
+        private ArrayList<Quiz> quiz;
+        private ArrayList<ClientQuiz> clientQuiz;
+        private Answer attempt;
+
+        public QuizController() {
+            quiz = new ArrayList<>();
+            clientQuiz = new ArrayList<>();
+            attempt = new Answer();
+        }
+
+        @PostMapping(path = "api/quizzes", consumes = "application/json")
+        public ClientQuiz createNewQuiz(@RequestBody Quiz newQuiz) {
+            quiz.add(newQuiz);
+            ClientQuiz clientNewQuiz = new ClientQuiz(newQuiz.title, newQuiz.text, newQuiz.options, quiz.size());
+            clientQuiz.add(clientNewQuiz);
+            return clientNewQuiz;
+        }
+
+        @PostMapping(path = "api/quizzes/{id}/solve")
+        public Answer getAttempt(@PathVariable int id, @RequestParam int answer) {
+            if (id - 1 < 0 || id - 1 >= clientQuiz.size()) {
+                throw new QuizNotFoundException("id: " + id);
+            }
+            int rightAnswer = quiz.get(id - 1).getAnswer();
+            if (rightAnswer == answer) {
+                attempt.setSuccess(true);
+                attempt.setFeedback("Congratulations, you're right!");
+            } else {
+                attempt.setSuccess(false);
+                attempt.setFeedback("Wrong answer! Please, try again.");
+            }
+            return attempt;
+        }
+
+        @GetMapping(path = "api/quizzes")
+        public ArrayList<ClientQuiz> getAllQuiz() {
+            return clientQuiz;
+        }
+
+        @GetMapping(path = "api/quizzes/{id}")
+        public ClientQuiz getSpecQuiz(@PathVariable int id) {
+            if (id - 1 < 0 || id - 1 >= clientQuiz.size()) {
+                throw new QuizNotFoundException("id: " + id);
+            }
+            return clientQuiz.get(id - 1);
+        }
+    }
+  learner_created: true
+- name: src/engine/AttemptAnswer.java
+  visible: true
+  learner_created: true
+- name: src/engine/QuizNotValidException.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/91/stages/506/implement
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/91/stages/506/implement">JetBrains
+    Academy</a>
+  time: Mon, 31 Aug 2020 12:26:10 UTC
 record: -1
